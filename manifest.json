@@ -2,17 +2,18 @@
     "name": "Clash Central Filter",
     "version": "0.1",
     "description": "",
-    "permissions": ["declarativeContent","storage"],
+    "permissions": ["declarativeContent", "storage"],
     "background": {
         "scripts": ["background.js"],
         "persistent": false
     },
-    "content_scripts": [
-        {
-          "matches": ["https://www.clashcentral.net/groups/"],
-          "run_at": "document_idle",
-          "js": ["elementFunctions.js","mainContentScript.js"]
-        }
-      ],
+    "content_scripts": [{
+        "matches": ["https://www.clashcentral.net/groups/"],
+        "run_at": "document_idle",
+        "js": ["elementFunctions.js", "mainContentScript.js"]
+    }],
+    "icons": {
+        "128": "icon.png"
+    },
     "manifest_version": 2
 }
