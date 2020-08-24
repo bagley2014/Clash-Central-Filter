@@ -10,7 +10,7 @@
     "content_scripts": [{
         "matches": ["https://www.clashcentral.net/groups/"],
         "run_at": "document_idle",
-        "js": ["elementFunctions.js", "mainContentScript.js"]
+        "js": ["elementFunctions.js", "mainContentScript.js", "speedChatPlus.js"]
     }],
     "icons": {
         "128": "icon.png"
