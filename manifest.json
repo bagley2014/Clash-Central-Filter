@@ -1,8 +1,8 @@
 {
     "name": "Clash Central Filter",
-    "version": "0.1",
+    "version": "0.0.0.1",
     "description": "",
-    "permissions": ["declarativeContent", "storage"],
+    "permissions": ["storage"],
     "background": {
         "scripts": ["background.js"],
         "persistent": false
