@@ -1,6 +1,6 @@
 {
     "name": "Clash Central Filter",
-    "version": "0.0.0.1",
+    "version": "0.1.1",
     "description": "",
     "permissions": ["storage"],
     "background": {
@@ -10,7 +10,7 @@
     "content_scripts": [{
         "matches": ["https://www.clashcentral.net/groups/"],
         "run_at": "document_idle",
-        "js": ["elementFunctions.js", "mainContentScript.js", "speedChatPlus.js"]
+        "js": ["elementFunctions.js", "mainContentScript.js"]
     }],
     "icons": {
         "128": "icon.png"

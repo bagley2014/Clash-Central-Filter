@@ -2,7 +2,19 @@
 let mainContent = document.getElementById('all-groups')
 let header = document.getElementsByClassName("toolbar-new")[0]
 
+mainContent.style.display = "none"
 header.style.margin = "81px 0 0 0"
+
+//Need a new div for the content to handle updating issues
+let altContentDisplay = document.createElement('div')
+//altContentDisplay.style = mainContent.style
+altContentDisplay.style.display = "flex"
+altContentDisplay.style.flexWrap = "wrap"
+altContentDisplay.style.justifyContent = "center"
+altContentDisplay.style.margin = 0
+altContentDisplay.style.marginLeft = "50px"
+altContentDisplay.style.marginRight = "50px"
+mainContent.after(altContentDisplay)
 
 /**
  * Section to create and populate my toolbar
@@ -18,90 +30,91 @@ addSelector(myBar, "Group Type", "type", ["Any", "Building", "Boss", "Facility",
 addSelector(myBar, "Open Slots", "open", ["Any", "Yes"])
 
 addCheckbox(myBar, "Hide Groups?", "hide")
+addCheckbox(myBar, "Show Self?", "self")
 
 mainContent.before(myBar)
+
+/**
+ * Helper functions for gathering relevant data about a group
+ */
+function isMyGroup(color) {
+    return color == "rgb(255, 198, 40)"
+    //return color == "#ffc628;"
+}
+
+ function isFull(toonCountLine) {
+    return toonCountLine.match(/(4 \/ 4)|(8 \/ 8)|(6 \/ 6)/)
+}
+
+function getType(titleLine) {
+    if (titleLine.match("Building")) return "Building"
+    else if (
+        titleLine.match("VP") ||
+        titleLine.match("CFO") ||
+        titleLine.match("CLO") ||
+        titleLine.match("CEO")
+    ) return "Boss"
+    else if (
+        titleLine.match("Factory") ||
+        titleLine.match("Mint") ||
+        titleLine.match("Lawfice") ||
+        titleLine.match("Cog Golf")
+    ) return "Facility"
+    else if (
+        titleLine.match("Derrick") ||
+        titleLine.match("Director")
+    ) return 'Mini-boss'
+    else if (
+        titleLine.match("Racing") ||
+        titleLine.match("Fishing") ||
+        titleLine.match("Trolley") ||
+        titleLine.match("Golfing")
+    ) return 'Minigame'
+}
 
 /**
  * Function to set the visibility of a given node based on the current parameters
  */
 function updateDOM(nodeList) {
-    mainContent.style.display = "none"
     chrome.storage.sync.get(["hide", "type", "neighborhood", "open"], function (storage) {
+        altContentDisplay.style.height = altContentDisplay.offsetHeight + 'px';
+        altContentDisplay.innerHTML = ""
         for (let element of nodeList) {
             if (element.nodeType != Node.TEXT_NODE) {
-
+                var div = element.querySelector('div');
                 var paragraphs = element.querySelectorAll('p');
                 var button = element.querySelector('button');
-
-                var titleLine = paragraphs[0].innerText
-
-                function hide() {
-                    if (storage["hide"]) element.style.display = "none"
-                    else button.disabled = true
-                }
 
                 element.style.display = "block"
                 button.disabled = false
 
-                if (storage['open'] != 'Any') {
-                    var full = paragraphs[paragraphs.length - 1].innerText.match(/(4 \/ 4)|(8 \/ 8)|(6 \/ 6)/)
-                    if (full) {
-                        hide()
-                        continue
-                    }
+                console.log(div.style.color)
+
+                if(storage['self'] && div.style.color){
+                    console.log("I have a group")
+                    continue
                 }
 
-                if (storage['type'] != 'Any') {
-                    if (storage['type'] == 'Building') {
-                        var building = titleLine.match("Building")
-                        if (!building) {
-                            hide()
-                            continue
-                        }
-                    } else if (storage['type'] == 'Boss') {
-                        var boss =
-                            titleLine.match("VP") ||
-                            titleLine.match("CFO") ||
-                            titleLine.match("CLO") ||
-                            titleLine.match("CEO")
-                        if (!boss) {
-                            hide()
-                            continue
-                        }
-                    } else if (storage['type'] == 'Facility') {
-                        var facility =
-                            titleLine.match("Factory") ||
-                            titleLine.match("Mint") ||
-                            titleLine.match("Lawfice") ||
-                            titleLine.match("Cog Golf")
-                        if (!facility) {
-                            hide()
-                            continue
-                        }
-                    } else if (storage['type'] == 'Mini-boss') {
-                        var miniboss =
-                            titleLine.match("Derrick") ||
-                            titleLine.match("Director")
-                        if (!miniboss) {
-                            hide()
-                            continue
-                        }
-                    } else if (storage['type'] == 'Minigame') {
-                        var minigame =
-                            titleLine.match("Racing") ||
-                            titleLine.match("Fishing") ||
-                            titleLine.match("Trolley") ||
-                            titleLine.match("Golfing")
-                        if (!minigame) {
-                            hide()
-                            continue
-                        }
-                    }
-                }
+                var titleLine = paragraphs[0].innerText
+                var toonCountLine = paragraphs[paragraphs.length - 1].innerText
 
+                const hide = storage["hide"] ?
+                    () => element.style.display = "none" :
+                    () => button.disabled = true
+
+                element.style.display = "block"
+                button.disabled = false
+
+                if (
+                    (storage['open'] != 'Any' && isFull(toonCountLine)) ||
+                    (storage['type'] != 'Any' && storage['type'] != getType(titleLine))
+                ) {
+                    hide()
+                }
             }
+            altContentDisplay.appendChild(element.cloneNode(true))
         }
-        mainContent.style.display = "flex"
+        altContentDisplay.style.height = "auto"
     })
 }
 
